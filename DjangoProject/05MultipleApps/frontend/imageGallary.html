@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Responsive Image Gallery</title>
+    <style>
+        :root {
+            --bg: #0b0c10;
+            --card: #121418;
+            --text: #e8eef2;
+            --muted: #97a3ab;
+            --accent: #4fc3f7;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+            background: radial-gradient(1200px 800px at 30% -10%, #10131a, var(--bg));
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: clamp(1.25rem, 1.1rem + 1.2vw, 2rem);
+            font-weight: 800;
+            letter-spacing: 0.3px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card);
+            border: 1px solid #1e222a;
+            padding: 10px 12px;
+            border-radius: 999px;
+            box-shadow: var(--shadow);
+        }
+
+        .search input {
+            border: 0;
+            outline: 0;
+            background: transparent;
+            color: var(--text);
+            width: 220px;
+            max-width: 55vw;
+        }
+
+        .btn {
+            border: 1px solid #1e222a;
+            background: var(--card);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: transform .1s ease, background .2s ease, border-color .2s ease;
+            box-shadow: var(--shadow);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            border-color: #2b3442;
+        }
+
+        /* Gallery Grid */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 14px;
+        }
+
+        .card {
+            background: #0e1116;
+            border: 1px solid #1a1f29;
+            border-radius: var(--radius);
+            overflow: hidden;
+            position: relative;
+            isolation: isolate;
+            transition: transform .18s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+            border-color: #263142;
+        }
+
+        .card img {
+            display: block;
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            filter: saturate(1.05) contrast(1.02);
+            transition: transform .25s ease;
+        }
+
+        .card:hover img {
+            transform: scale(1.03);
+        }
+
+        .card figcaption {
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: rgba(79, 195, 247, .12);
+            color: var(--accent);
+            border: 1px solid rgba(79, 195, 247, .3);
+        }
+
+        /* Lightbox */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            display: none;
+            place-items: center;
+            z-index: 1000;
+            background: rgba(3, 6, 10, 0.82);
+            backdrop-filter: blur(6px) saturate(120%);
+        }
+
+        .lightbox.open {
+            display: grid;
+        }
+
+        .lightbox__inner {
+            width: min(92vw, 1100px);
+            border-radius: 18px;
+            overflow: hidden;
+            background: #0b0f15;
+            border: 1px solid #1f2633;
+            box-shadow: 0 30px 100px rgba(0, 0, 0, .6);
+            position: relative;
+        }
+
+        .lightbox__media {
+            width: 100%;
+            display: block;
+            max-height: 80vh;
+            object-fit: contain;
+            background: #0b0f15;
+        }
+
+        .lightbox__bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 12px 14px;
+            border-top: 1px solid #1f2633;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .lightbox__controls {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .iconbtn {
+            pointer-events: auto;
+            cursor: pointer;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            margin: 10px;
+            border: 1px solid #1e2330;
+            background: rgba(16, 20, 27, 0.8);
+            display: grid;
+            place-items: center;
+            font-size: 22px;
+            color: var(--text);
+            transition: transform .12s ease, background .2s ease, border-color .2s;
+        }
+
+        .iconbtn:hover {
+            transform: scale(1.06);
+            border-color: #2a3344;
+        }
+
+        .closebtn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 2;
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 540px) {
+            .card img {
+                height: 150px;
+            }
+
+            .search input {
+                width: 160px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <div class="title">Image Gallery</div>
+                <div class="subtitle">Responsive grid • Lightbox • Keyboard & touch support</div>
+            </div>
+            <div class="toolbar">
+                <label class="search" aria-label="Search images">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true">
+                        <path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6" />
+                    </svg>
+                    <input id="search" type="search" placeholder="Search caption…" />
+                </label>
+                <button id="shuffle" class="btn" type="button">Shuffle</button>
+            </div>
+        </header>
+
+        <section class="gallery" id="gallery" aria-live="polite">
+            <!-- Each figure needs: img[data-full][alt], figcaption[data-tags] -->
+
+            <!-- Using picsum.photos placeholders for demo; replace src & data-full with your assets -->
+            <figure class="card"><img loading="lazy" src="https://picsum.photos/id/1015/600/400"
+                    data-full="https://picsum.photos/id/1015/1600/1000" alt="Mountain lake at dawn" />
+                <figcaption data-tags="nature, mountain, lake">Mountain Lake <span class="badge">Nature</span>
+                </figcaption>
+            </figure>
+            <figure class="card"><img loading="lazy" src="https://picsum.photos/id/1025/600/400"
+                    data-full="https://picsum.photos/id/1025/1600/1000" alt="Cute puppy portrait" />
+                <figcaption data-tags="animals, dog, puppy">Puppy <span class="badge">Animals</span></figcaption>
+            </figure>
+            <figure class="card"><img loading="lazy" src="https://picsum.photos/id/1003/600/400"
+                    data-full="https://picsum.photos/id/1003/1600/1000" alt="Foggy forest canopy" />
+                <figcaption data-tags="forest, trees, fog">Foggy Forest <span class="badge">Nature</span></figcaption>
+            </figure>
+            <figure class="card"><img loading="lazy" src="https://picsum.photos/id/1024/600/400"
+                    data-full="https://picsum.photos/id/1024/1600/1000" alt="Beach and sea waves" />
+                <figcaption data-tags="beach, sea, ocean">Sea Waves <span class="badge">Travel</span></figcaption>
+            </figure>
+            <figure class="card"><img loading="lazy" src="https://picsum.photos/id/1035/600/400"
+                    data-full="https://picsum.photos/id/1035/1600/1000" alt="Snowy mountains" />
+                <figcaption data-tags="snow, mountain, landscape">Snow Peaks <span class="badge">Nature</span>
+                </figcaption>
+            </figure>
+            <figure class="card"><img loading="lazy" src="https://picsum.photos/id/1041/600/400"
+                    data-full="https://picsum.photos/id/1041/1600/1000" alt="City skyline at night" />
+                <figcaption data-tags="city, skyline, night">City Night <span class="badge">Urban</span></figcaption>
+            </figure>
+            <figure class="card"><img loading="lazy" src="https://picsum.photos/id/1050/600/400"
+                    data-full="https://picsum.photos/id/1050/1600/1000" alt="Desert dunes" />
+                <figcaption data-tags="desert, sand, dunes">Desert Dunes <span class="badge">Travel</span></figcaption>
+            </figure>
+            <figure class="card"><img loading="lazy" src="https://picsum.photos/id/1069/600/400"
+                    data-full="https://picsum.photos/id/1069/1600/1000" alt="Green valley" />
+                <figcaption data-tags="valley, green, hills">Green Valley <span class="badge">Nature</span></figcaption>
+            </figure>
+            <figure class="card"><img loading="lazy" src="https://picsum.photos/id/1074/600/400"
+                    data-full="https://picsum.photos/id/1074/1600/1000" alt="Calm lake" />
+                <figcaption data-tags="lake, calm, reflection">Calm Lake <span class="badge">Nature</span></figcaption>
+            </figure>
+            <figure class="card"><img loading="lazy" src="https://picsum.photos/id/1084/600/400"
+                    data-full="https://picsum.photos/id/1084/1600/1000" alt="Countryside road" />
+                <figcaption data-tags="road, countryside, travel">Country Road <span class="badge">Travel</span>
+                </figcaption>
+            </figure>
+            <figure class="card"><img loading="lazy" src="https://picsum.photos/id/1081/600/400"
+                    data-full="https://picsum.photos/id/1081/1600/1000" alt="Sunset field" />
+                <figcaption data-tags="sunset, field, golden">Sunset Field <span class="badge">Nature</span>
+                </figcaption>
+            </figure>
+            <figure class="card"><img loading="lazy" src="https://picsum.photos/id/1020/600/400"
+                    data-full="https://picsum.photos/id/1020/1600/1000" alt="Waterfall in forest" />
+                <figcaption data-tags="waterfall, forest, stream">Waterfall <span class="badge">Nature</span>
+                </figcaption>
+            </figure>
+        </section>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" aria-modal="true" role="dialog" aria-label="Image viewer" tabindex="-1">
+        <div class="lightbox__inner">
+            <button class="iconbtn closebtn" id="btnClose" aria-label="Close (Esc)">✕</button>
+            <div class="lightbox__controls">
+                <button class="iconbtn" id="btnPrev" aria-label="Previous (←)">❮</button>
+                <button class="iconbtn" id="btnNext" aria-label="Next (→)">❯</button>
+            </div>
+            <img class="lightbox__media" id="lightboxImg" alt="Preview" />
+            <div class="lightbox__bar">
+                <div id="lightboxCaption">&nbsp;</div>
+                <a id="downloadLink" class="btn" href="#" download>Download</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const gallery = document.getElementById('gallery');
+            const items = Array.from(gallery.querySelectorAll('figure.card'));
+            const search = document.getElementById('search');
+            const shuffleBtn = document.getElementById('shuffle');
+
+            const lb = {
+                el: document.getElementById('lightbox'),
+                img: document.getElementById('lightboxImg'),
+                caption: document.getElementById('lightboxCaption'),
+                download: document.getElementById('downloadLink'),
+                btnPrev: document.getElementById('btnPrev'),
+                btnNext: document.getElementById('btnNext'),
+                btnClose: document.getElementById('btnClose'),
+                current: -1
+            };
+
+            // Open lightbox
+            function openAt(index) {
+                const fig = items[index];
+                if (!fig) return;
+                const img = fig.querySelector('img');
+                const full = img.dataset.full || img.src;
+                lb.img.src = full;
+                lb.img.alt = img.alt || '';
+                lb.caption.textContent = fig.querySelector('figcaption')?.textContent?.trim() || '';
+                lb.download.href = full;
+                lb.el.classList.add('open');
+                lb.current = index;
+                lb.el.focus();
+            }
+            function close() { lb.el.classList.remove('open'); lb.img.removeAttribute('src'); lb.current = -1; }
+            function prev() { openAt((lb.current - 1 + items.length) % items.length); }
+            function next() { openAt((lb.current + 1) % items.length); }
+
+            items.forEach((fig, index) => {
+                fig.addEventListener('click', () => openAt(index));
+                // Make keyboard focusable
+                fig.tabIndex = 0;
+                fig.setAttribute('role', 'button');
+                fig.setAttribute('aria-label', fig.querySelector('img')?.alt || 'Open image');
+                fig.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAt(index); } });
+            });
+
+            // Controls
+            lb.btnClose.addEventListener('click', close);
+            lb.btnPrev.addEventListener('click', prev);
+            lb.btnNext.addEventListener('click', next);
+            lb.el.addEventListener('click', (e) => { if (e.target === lb.el) close(); });
+            window.addEventListener('keydown', (e) => {
+                if (!lb.el.classList.contains('open')) return;
+                if (e.key === 'Escape') close();
+                else if (e.key === 'ArrowLeft') prev();
+                else if (e.key === 'ArrowRight') next();
+            });
+
+            // Touch swipe
+            let sx = 0, dx = 0;
+            lb.el.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; dx = 0; }, { passive: true });
+            lb.el.addEventListener('touchmove', (e) => { dx = e.touches[0].clientX - sx; }, { passive: true });
+            lb.el.addEventListener('touchend', () => { if (Math.abs(dx) > 40) (dx > 0 ? prev : next)(); });
+
+            // Search filter (caption + tags)
+            search.addEventListener('input', () => {
+                const q = search.value.trim().toLowerCase();
+                items.forEach(fig => {
+                    const cap = fig.querySelector('figcaption')?.textContent?.toLowerCase() || '';
+                    const tags = fig.querySelector('figcaption')?.dataset.tags || '';
+                    fig.style.display = (cap.includes(q) || tags.includes(q)) ? '' : 'none';
+                });
+            });
+
+            // Shuffle order
+            shuffleBtn.addEventListener('click', () => {
+                const shuffled = items.slice().sort(() => Math.random() - 0.5);
+                shuffled.forEach(node => gallery.appendChild(node));
+            });
+
+            // Optional: Intersection fade-in (progressive reveal)
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.animate([
+                            { opacity: 0, transform: 'translateY(10px)' },
+                            { opacity: 1, transform: 'translateY(0)' }
+                        ], { duration: 280, easing: 'ease-out' });
+                        io.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: .15 });
+            items.forEach(fig => io.observe(fig));
+        })();
+    </script>
+</body>
+
+</html>
