@@ -56,7 +56,7 @@
   <!-- END nav -->
 
   <section class="home-slider owl-carousel">
-    <div class="slider-item" style="background-image: url('{% static "images/bg_1.jpg" %}');">
+    <div class="slider-item" style="background-image: url('{% static " images/bg_1.jpg" %}');">
       <div class="overlay"></div>
       <div class="container">
         <div class="row slider-text align-items-center" data-scrollax-parent="true">
@@ -72,7 +72,7 @@
       </div>
     </div>
 
-    <div class="slider-item" style="background-image: url('{% static "images/bg_2.jpg" %}');">
+    <div class="slider-item" style="background-image: url('{% static " images/bg_2.jpg" %}');">
       <div class="overlay"></div>
       <div class="container">
         <div class="row slider-text align-items-center" data-scrollax-parent="true">
@@ -113,52 +113,49 @@
         </div>
         <div class="col-md-6 color-3 p-4">
           <h3 class="mb-2">Make an Appointment</h3>
-          <form action="#" class="appointment-form">
+          <form method="POST" action="" class="appointment-form">
+            {% csrf_token %}
+
             <div class="row">
               <div class="col-sm-4">
                 <div class="form-group">
                   <div class="select-wrap">
                     <div class="icon"><span class="ion-ios-arrow-down"></span></div>
-                    <select name="" id="" class="form-control">
-                      <option value="">Department</option>
-                      <option value="">Teeth Whitening</option>
-                      <option value="">Teeth CLeaning</option>
-                      <option value="">Quality Brackets</option>
-                      <option value="">Modern Anesthetic</option>
-                    </select>
+                    {{ form.department }}
                   </div>
                 </div>
               </div>
               <div class="col-sm-4">
                 <div class="form-group">
                   <div class="icon"><span class="icon-user"></span></div>
-                  <input type="text" class="form-control" id="appointment_name" placeholder="Name">
+                  {{ form.name }}
                 </div>
               </div>
               <div class="col-sm-4">
                 <div class="form-group">
                   <div class="icon"><span class="icon-paper-plane"></span></div>
-                  <input type="text" class="form-control" id="appointment_email" placeholder="Email">
+                  {{ form.email }}
                 </div>
               </div>
             </div>
+
             <div class="row">
               <div class="col-sm-4">
                 <div class="form-group">
                   <div class="icon"><span class="ion-ios-calendar"></span></div>
-                  <input type="text" class="form-control appointment_date" placeholder="Date">
+                  {{ form.date }}
                 </div>
               </div>
               <div class="col-sm-4">
                 <div class="form-group">
                   <div class="icon"><span class="ion-ios-clock"></span></div>
-                  <input type="text" class="form-control appointment_time" placeholder="Time">
+                  {{ form.time }}
                 </div>
               </div>
               <div class="col-sm-4">
                 <div class="form-group">
                   <div class="icon"><span class="icon-phone2"></span></div>
-                  <input type="text" class="form-control" id="phone" placeholder="Phone">
+                  {{ form.contact }}
                 </div>
               </div>
             </div>
@@ -167,6 +164,7 @@
               <input type="submit" value="Make an Appointment" class="btn btn-primary">
             </div>
           </form>
+
         </div>
       </div>
     </div>
@@ -665,7 +663,8 @@
       <div class="row">
         <div class="col-md-4 ftco-animate">
           <div class="blog-entry">
-            <a href="blog-single.html" class="block-20" style="background-image: url('{% static "images/image_1.jpg" %}');">
+            <a href="blog-single.html" class="block-20" style="background-image: url('{% static " images/image_1.jpg"
+              %}');">
             </a>
             <div class="text d-flex py-4">
               <div class="meta mb-3">
@@ -682,7 +681,8 @@
         </div>
         <div class="col-md-4 ftco-animate">
           <div class="blog-entry" data-aos-delay="100">
-            <a href="blog-single.html" class="block-20" style="background-image: url('{% static "images/image_2.jpg" %}');">
+            <a href="blog-single.html" class="block-20" style="background-image: url('{% static " images/image_2.jpg"
+              %}');">
             </a>
             <div class="text d-flex py-4">
               <div class="meta mb-3">
@@ -699,7 +699,8 @@
         </div>
         <div class="col-md-4 ftco-animate">
           <div class="blog-entry" data-aos-delay="200">
-            <a href="blog-single.html" class="block-20" style="background-image: url('{% static "images/image_3.jpg" %}');">
+            <a href="blog-single.html" class="block-20" style="background-image: url('{% static " images/image_3.jpg"
+              %}');">
             </a>
             <div class="text d-flex py-4">
               <div class="meta mb-3">
